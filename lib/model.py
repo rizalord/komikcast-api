@@ -1,11 +1,14 @@
 from bs4 import BeautifulSoup as bs
 from lib.static import urlPath,errorMessage,headers
 import requests
+from flask import request as req
 
 def getRootData():
-    page = requests.get(urlPath, headers=headers)
+    newUrl = urlPath if req.args.get('page') is None else urlPath + 'page/' + req.args.get('page') + '/'
+    page = requests.get(newUrl, headers=headers)
     soup = bs(page.text , 'html.parser')
     if page.status_code == 200:
+
         # Parsing Data
         # Initialization Container
         hot_comic = [] 
@@ -66,10 +69,6 @@ def getRootData():
             }
 
             latest_chapter.append(tmp)
-
-        # tmp = []
-        # for data in soup.find_all('div' , attrs={'class' : 'listupd'}):
-        #     tmp.append(data.get_text().strip())
         
         return {
             'hot_comic' : hot_comic,
@@ -80,3 +79,33 @@ def getRootData():
     else:
         return errorMessage
     
+def getDaftarKomik():
+
+    newUrl = urlPath + 'daftar-komik/' if req.args.get('page') is None else urlPath + 'daftar-komik/page/' + req.args.get('page') + '/'
+    pagination_page = int(req.args.get('page')) if req.args.get('page') is not None else 1
+    page = requests.get(newUrl , headers=headers)
+    soup = bs(page.text , 'html.parser')
+
+    if page.status_code == 200:
+        # Parsing Data
+        # Initialization Container
+
+        daftar_komik = []
+
+        for data in soup.find_all('div' , attrs={'class' : 'bs'}):
+            daftar_komik.append({
+                'title' : data.find('div' , attrs={'class': 'tt'}).get_text().strip(),
+                'chapter': data.find('div' , attrs={'class' : 'epxs'}).find('a').get_text().strip(),
+                'rating' : data.find('div' , attrs={'class': 'rating'}).find('i').get_text().strip(),
+                'image': data.find('img').get('src').strip(),
+                'type': data.find('span' , attrs={'class' : 'type'}).get_text().strip(),
+                'isCompleted': True if data.find('span' , attrs={'class' : 'Completed'}) is not None else False
+            })
+        
+        return {
+            'daftar_komik' : daftar_komik,
+            'page': pagination_page
+        }
+
+    else:
+        return errorMessage
