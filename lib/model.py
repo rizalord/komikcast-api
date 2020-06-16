@@ -130,6 +130,36 @@ def getProjectList():
                 'rating' : data.find('div' , attrs={'class': 'rating'}).find('i').get_text().strip(),
                 'image': data.find('img').get('src').strip(),
                 'type': data.find('span' , attrs={'class' : 'type'}).get_text().strip(),
+            })
+        
+        return {
+            'daftar_komik' : daftar_komik,
+            'page': pagination_page
+        }
+
+    else:
+        return errorMessage
+
+def getKomikTamat():
+
+    newUrl = urlPath + 'komik-tamat/' if req.args.get('page') is None else urlPath + 'komik-tamat/page/' + req.args.get('page') + '/'
+    pagination_page = int(req.args.get('page')) if req.args.get('page') is not None else 1
+    page = requests.get(newUrl , headers=headers)
+    soup = bs(page.text , 'html.parser')
+
+    if page.status_code == 200:
+        # Parsing Data
+        # Initialization Container
+
+        daftar_komik = []
+
+        for data in soup.find_all('div' , attrs={'class' : 'bs'}):
+            daftar_komik.append({
+                'title' : data.find('div' , attrs={'class': 'tt'}).get_text().strip(),
+                'chapter': data.find('div' , attrs={'class' : 'epxs'}).find('a').get_text().strip(),
+                'rating' : data.find('div' , attrs={'class': 'rating'}).find('i').get_text().strip(),
+                'image': data.find('img').get('src').strip(),
+                'type': data.find('span' , attrs={'class' : 'type'}).get_text().strip(),
                 'isCompleted': True if data.find('span' , attrs={'class' : 'Completed'}) is not None else False
             })
         
@@ -140,3 +170,33 @@ def getProjectList():
 
     else:
         return errorMessage
+
+def getJadwalUpdate():
+    newUrl = urlPath + 'jadwal-update-project-harian-komikcast/'
+    page = requests.get(newUrl , headers=headers)
+    soup = bs(page.text , 'html.parser')
+
+    if page.status_code == 200:
+        # Parsing Data
+        # Initialization Container
+
+        container = []
+
+        # GETTING DATA
+        for data in soup.find('div' , attrs={'class' , 'text_exposed_show'}).find_all('p'):
+            
+            if '&nbsp;' not in data.get_text():
+                container.append({
+                    'time' :  str(data.get_text()).split('=')[0].replace('–' , '').strip(),
+                    'project': str(data.get_text()).split('=')[-1].strip(),
+                })
+        
+        # Remove last element, cause it's useless empty string
+        container.pop()
+        
+        return {
+            'data' : container
+        }
+    else:
+        return errorMessage
+

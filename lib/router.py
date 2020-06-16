@@ -15,5 +15,13 @@ class Router:
         @app.route('/project-list')
         def project_list():
             return model.getProjectList()
+        
+        @app.route('/komik-tamat')
+        def komik_tamat():
+            return model.getKomikTamat()
+        
+        @app.route('/jadwal-update')
+        def jadwal_update():
+            return model.getJadwalUpdate()
             
 
