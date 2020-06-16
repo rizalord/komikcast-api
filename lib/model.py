@@ -109,3 +109,34 @@ def getDaftarKomik():
 
     else:
         return errorMessage
+
+def getProjectList():
+
+    newUrl = urlPath + 'project-list/' if req.args.get('page') is None else urlPath + 'project-list/page/' + req.args.get('page') + '/'
+    pagination_page = int(req.args.get('page')) if req.args.get('page') is not None else 1
+    page = requests.get(newUrl , headers=headers)
+    soup = bs(page.text , 'html.parser')
+
+    if page.status_code == 200:
+        # Parsing Data
+        # Initialization Container
+
+        daftar_komik = []
+
+        for data in soup.find_all('div' , attrs={'class' : 'bs'}):
+            daftar_komik.append({
+                'title' : data.find('div' , attrs={'class': 'tt'}).get_text().strip(),
+                'chapter': data.find('div' , attrs={'class' : 'epxs'}).find('a').get_text().strip(),
+                'rating' : data.find('div' , attrs={'class': 'rating'}).find('i').get_text().strip(),
+                'image': data.find('img').get('src').strip(),
+                'type': data.find('span' , attrs={'class' : 'type'}).get_text().strip(),
+                'isCompleted': True if data.find('span' , attrs={'class' : 'Completed'}) is not None else False
+            })
+        
+        return {
+            'daftar_komik' : daftar_komik,
+            'page': pagination_page
+        }
+
+    else:
+        return errorMessage
