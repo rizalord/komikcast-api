@@ -23,5 +23,9 @@ class Router:
         @app.route('/jadwal-update')
         def jadwal_update():
             return model.getJadwalUpdate()
+
+        @app.route('/komik')
+        def komik():
+            return model.getDataKomik()
             
 

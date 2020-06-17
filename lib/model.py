@@ -212,3 +212,51 @@ def getJadwalUpdate():
     else:
         return errorMessage
 
+def getDataKomik():
+    idKomik = req.args.get('id')
+    newUrl = urlPath + 'komik/' + idKomik
+    page = requests.get(newUrl , headers=headers)
+    soup = bs(page.text , 'html.parser')
+
+    if page.status_code == 200:
+        # Parsing Data
+        # Initialization Container
+
+        container = {}
+
+        # GETTING DATA
+        genres = []
+        list_chapter = []
+
+        for data in soup.find('div' , {'class' : 'spe'}).find('span').find_all('a'):
+            genres.append(data.get_text().strip())
+        for data in soup.find('div' , {'class' : 'cl'}).find_all('li'):
+            list_chapter.append({
+                'chapter': data.find('span' , {'class' : 'leftoff'}).find('a').get_text().replace('Chapter' , '').strip(),
+                'time_release': data.find('span' , {'class' : 'rightoff'}).get_text().strip(),
+                'link': data.find('span' , {'class' : 'leftoff'}).find('a').get('href').strip(),
+                'linkId': data.find('span' , {'class' : 'leftoff'}).find('a').get('href').replace('https://komikcast.com/chapter/' , '').strip(),
+            })
+
+        container = {
+            'image': soup.find('div' , {'class' : 'thumb'}).find('img').get('src'),
+            'title': soup.find('h1' , {'itemprop' : 'headline'}).get_text().strip(),
+            'title_other': soup.find('span' , {'class' : 'alter'}).get_text().strip(),
+            'rating': soup.find('div' , {'class' : 'rating'}).find('strong').get_text().replace('Rating' , '').strip(),
+            'sinopsis': soup.find('div' , {'itemprop' : 'articleBody'}).find('p').get_text().strip(),
+            'genres' : genres,
+            'type': soup.find('div' , {'class': 'spe'}).find_all('span')[4].find('a').get_text().strip(),
+            'updated_on': soup.find('div' , {'class': 'spe'}).find_all('span')[6].find('time').get_text().strip(),
+            'status': soup.find('div', {'class': 'spe'}).find_all('span')[1].get_text().replace('Status:','').strip(),
+            'released': soup.find('div', {'class': 'spe'}).find_all('span')[2].get_text().replace('Released:','').strip(),
+            'author': soup.find('div', {'class': 'spe'}).find_all('span')[3].get_text().replace('Author:','').strip(),
+            'total_chapter': soup.find('div', {'class': 'spe'}).find_all('span')[5].get_text().replace('Total Chapter:','').strip(),
+            'list_chapter': list_chapter
+        } 
+        
+        return {
+            'data' : container
+        }
+    else:
+        return errorMessage
+
