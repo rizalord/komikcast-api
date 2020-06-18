@@ -260,3 +260,53 @@ def getDataKomik():
     else:
         return errorMessage
 
+
+def getChapterComic():
+    idKomik = req.args.get('id')
+    newUrl = urlPath + 'chapter/' + idKomik
+    page = requests.get(newUrl , headers=headers)
+    soup = bs(page.text , 'html.parser')
+
+    if page.status_code == 200:
+        # Parsing Data
+        # Initialization Container
+
+        select_chapter = []
+        images = []
+
+        for data in soup.find('select').find_all('option'):
+            if data.get_text() != 'Select Chapter Manga':
+                select_chapter.append({
+                    'text': data.get_text().strip(),
+                    'link': data.get('value').strip(),
+                    'linkId': data.get('value').replace('https://komikcast.com/chapter/' , '').strip(),
+                })
+        
+        for data in soup.find('div' , {'id' : 'readerarea'}).find_all('img'):
+            if data.get('src').strip() != '':
+                images.append({
+                    'link': data.get('src').strip(),
+                    'width': data.get('width').strip() if data.get('width') is not None else None,
+                    'height': data.get('height').strip() if data.get('height') is not None else None,
+                })
+
+        container = {
+            'title': soup.find('h1' , {'itemprop' : 'name'}).get_text().strip(),
+            'chapter': soup.find('h1' , {'itemprop' : 'name'}).get_text().split('Chapter')[1].replace('Bahasa Indonesia' , '').strip(),
+            'comic_title': soup.find('div' , {'class': 'allc'}).find('a').get_text().strip(),
+            'comic_link': soup.find('div' , {'class': 'allc'}).find('a').get('href').strip(),
+            'comic_link_id': soup.find('div' , {'class': 'allc'}).find('a').get('href').replace('https://komikcast.com/komik/' , '').strip(),
+            'select_chapter': select_chapter,
+            'prev_link': soup.find('div' , {'class': 'nextprev'}).find('a' , {'rel' : 'prev'}).get('href').strip() if soup.find('div' , {'class': 'nextprev'}).find('a' , {'rel' : 'prev'}) is not None else None,
+            'prev_link_id': soup.find('div' , {'class': 'nextprev'}).find('a' , {'rel' : 'prev'}).get('href').replace('https://komikcast.com/chapter/' , '').strip() if soup.find('div' , {'class': 'nextprev'}).find('a' , {'rel' : 'prev'}) is not None else None,
+            'next_link': soup.find('div' , {'class': 'nextprev'}).find('a' , {'rel' : 'next'}).get('href').strip() if soup.find('div' , {'class': 'nextprev'}).find('a' , {'rel' : 'next'}) is not None else None,
+            'next_link_id': soup.find('div' , {'class': 'nextprev'}).find('a' , {'rel' : 'next'}).get('href').replace('https://komikcast.com/chapter/' , '').strip() if soup.find('div' , {'class': 'nextprev'}).find('a' , {'rel' : 'next'}) is not None else None,
+            'images': images
+        }
+        
+        return {
+            'data' : container
+        }
+    else:
+        return errorMessage
+

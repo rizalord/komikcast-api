@@ -27,5 +27,9 @@ class Router:
         @app.route('/komik')
         def komik():
             return model.getDataKomik()
+        
+        @app.route('/chapter')
+        def chapter():
+            return model.getChapterComic()
             
 
