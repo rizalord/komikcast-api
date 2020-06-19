@@ -7,8 +7,6 @@ This repo is a rest-api which is scraping to the [komikcast](https://komikcast.c
 
 ## Installation
 
-Use the package manager [npm](https://npmjs.com/) to install SRA's package.
-
 * Clone the Repo
 * Create the environment first
 ```bash
