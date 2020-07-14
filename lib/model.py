@@ -310,3 +310,37 @@ def getChapterComic():
     else:
         return errorMessage
 
+def getSpecificComic():
+    keyword = req.args.get('keyword')
+    newUrl = urlPath + '?s=' + keyword if req.args.get('page') is None else urlPath + 'page/' + req.args.get('page') + '/?s=' + keyword
+    pagination_page = int(req.args.get('page')) if req.args.get('page') is not None else 1
+    page = requests.get(newUrl , headers=headers)
+    soup = bs(page.text , 'html.parser')
+
+    if page.status_code == 200:
+        # Parsing Data
+        # Initialization Container
+
+        daftar_komik = []
+
+        for data in soup.find_all('div' , attrs={'class' : 'bs'}):
+            daftar_komik.append({
+                'title' : data.find('div' , attrs={'class': 'tt'}).get_text().strip(),
+                'chapter': data.find('div' , attrs={'class' : 'epxs'}).find('a').get_text().replace('Ch.' , '').strip(),
+                'rating' : data.find('div' , attrs={'class': 'rating'}).find('i').get_text().strip(),
+                'image': data.find('img').get('src').strip(),
+                'type': data.find('span' , attrs={'class' : 'type'}).get_text().strip(),
+                'isCompleted': True if data.find('span' , attrs={'class' : 'Completed'}) is not None else False,
+                'link': data.find('a').get('href') if data.find('a') is not None else None,
+                'linkId': data.find('a').get('href').replace('https://komikcast.com/komik/' , '')[:-1] if data.find('a') is not None else None,
+                'linkChapter': data.find('div' , attrs={'class' : 'bigor'}).find('a').get('href') if data.find('div' , attrs={'class' : 'bigor'}).find('a') is not None else None,
+                'linkIdChapter': data.find('div' , attrs={'class' : 'bigor'}).find('a').get('href').replace('https://komikcast.com/chapter/' , '')[:-1] if data.find('div' , attrs={'class' : 'bigor'}).find('a') is not None else None,
+            })
+        
+        return {
+            'results' : daftar_komik,
+            'page': pagination_page
+        }
+
+    else:
+        return errorMessage

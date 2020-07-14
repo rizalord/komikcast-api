@@ -46,6 +46,7 @@ Then open [http://127.0.0.1:5000/](http://127.0.0.1:5000/)
 | /jadwal-update  | - | - | 
 | /komik  | id | String | 
 | /chapter  | id | String | 
+| /search  | keyword, page | String, Number | 
 
 
 

@@ -31,5 +31,9 @@ class Router:
         @app.route('/chapter')
         def chapter():
             return model.getChapterComic()
+        
+        @app.route('/search')
+        def search():
+            return model.getSpecificComic()
             
 
