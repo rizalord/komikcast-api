@@ -324,11 +324,17 @@ def getSpecificComic():
         daftar_komik = []
 
         for data in soup.find_all('div' , attrs={'class' : 'bs'}):
+            image = None
+            try:
+                image = data.find('img') .get('src').strip()
+            except:
+                pass
+
             daftar_komik.append({
                 'title' : data.find('div' , attrs={'class': 'tt'}).get_text().strip(),
                 'chapter': data.find('div' , attrs={'class' : 'epxs'}).find('a').get_text().replace('Ch.' , '').strip(),
                 'rating' : data.find('div' , attrs={'class': 'rating'}).find('i').get_text().strip(),
-                'image': data.find('img').get('src').strip(),
+                'image': image,
                 'type': data.find('span' , attrs={'class' : 'type'}).get_text().strip(),
                 'isCompleted': True if data.find('span' , attrs={'class' : 'Completed'}) is not None else False,
                 'link': data.find('a').get('href') if data.find('a') is not None else None,
