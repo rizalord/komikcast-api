@@ -81,7 +81,8 @@ def getRootData():
     
 def getDaftarKomik():
 
-    newUrl = urlPath + 'daftar-komik/' if req.args.get('page') is None else urlPath + 'daftar-komik/page/' + req.args.get('page') + '/'
+    order = '' if req.args.get('order') is None else '?order=' + req.args.get('order')
+    newUrl = urlPath + 'daftar-komik/' + order if req.args.get('page') is None else urlPath + 'daftar-komik/page/' + req.args.get('page') + '/' + order
     pagination_page = int(req.args.get('page')) if req.args.get('page') is not None else 1
     page = requests.get(newUrl , headers=headers)
     soup = bs(page.text , 'html.parser')
