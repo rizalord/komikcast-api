@@ -1,3 +1,6 @@
+# **DEPRECATED** - no longer actively maintained
+
+---
 # Komikcast-Rest-Api
 
 This repo is a rest-api which is scraping to the [komikcast](https://komikcast.com) website and made up using Flask.
